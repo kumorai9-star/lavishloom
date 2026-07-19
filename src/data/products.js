@@ -4,6 +4,11 @@
 // so search can understand queries like "red trousers" or "shirts for girls".
 // Sizes run from 2Y to 12Y across the whole catalog.
 
+import heroImg from "../assets/pic2.jpeg";
+import pic1 from "../assets/pic1.jpeg";
+import pic6 from "../assets/pic6.jpeg";
+import pic7 from "../assets/pic7.jpeg";
+
 export const categories = ["Boys", "Girls"];
 
 export const sizeRange = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y"];
@@ -36,7 +41,7 @@ export const products = [
       { size: "8Y", color: "Rust", stock: 0 },
       { size: "8Y", color: "Stone", stock: 0 },
     ],
-    images: ["/src/assets/pic1.jpeg", "/src/assets/hero.png"],
+    images: [pic1, heroImg],
     description:
       "Crafted from premium 12oz raw Japanese denim, this utility jacket is designed to age beautifully through generations. Featuring reinforced patch pockets, triple-needle stitching, and a tailored yet comfortable fit for active play.",
     rating: 5,
@@ -58,7 +63,7 @@ export const products = [
       { size: "8Y", color: "Sandstone", stock: 2 },
       { size: "10Y", color: "Sandstone", stock: 3 },
     ],
-    images: ["/src/assets/pic6.jpeg"],
+    images: [pic6],
     description: "Relaxed-fit trousers in brushed cotton twill, built for climbing trees and long afternoons outside.",
     rating: 5,
     reviews: 21,
@@ -77,7 +82,7 @@ export const products = [
       { size: "4Y", color: "Sandstone / Ivory", stock: 0 },
       { size: "6Y", color: "Sandstone / Ivory", stock: 5 },
     ],
-    images: ["/src/assets/pic7.jpeg"],
+    images: [pic7],
     description: "A two-piece linen set with a hand-finished pinstripe weave, soft against delicate skin.",
     rating: 4,
     reviews: 12,
@@ -102,7 +107,7 @@ export const products = [
       { size: "6Y", color: "Black", stock: 2 },
       { size: "6Y", color: "Red", stock: 3 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "A ribbed knit tank layered for play or dressed up for the studio.",
     rating: 5,
     reviews: 9,
@@ -121,7 +126,7 @@ export const products = [
       { size: "6Y", color: "Red Stripe", stock: 0 },
       { size: "8Y", color: "Red Stripe", stock: 1 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Breton-inspired stripes in organic cotton jersey, cut for warm-weather wandering.",
     rating: 5,
     reviews: 15,
@@ -142,7 +147,7 @@ export const products = [
       { size: "8Y", color: "Sandstone", stock: 0 },
       { size: "10Y", color: "Sandstone", stock: 2 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Artisanal weave, sandstone tone — a foundational piece for the curated wardrobe.",
     rating: 5,
     reviews: 18,
@@ -161,7 +166,7 @@ export const products = [
       { size: "6Y", color: "Plaid", stock: 0 },
       { size: "8Y", color: "Plaid", stock: 4 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "A limited edition workshop piece in heritage plaid wool blend.",
     rating: 5,
     reviews: 7,
@@ -182,7 +187,7 @@ export const products = [
       { size: "8Y", color: "Navy Heritage", stock: 0 },
       { size: "10Y", color: "Navy Heritage", stock: 0 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Raw denim chore jacket built on a heritage silhouette, made to be handed down.",
     rating: 5,
     reviews: 22,
@@ -204,7 +209,7 @@ export const products = [
       { size: "10Y", color: "Stone", stock: 1 },
       { size: "12Y", color: "Stone", stock: 2 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Relaxed fit trousers in undyed stone linen.",
     rating: 4,
     reviews: 6,
@@ -224,7 +229,7 @@ export const products = [
       { size: "6Y", color: "Yellow", stock: 3 },
       { size: "8Y", color: "Yellow", stock: 2 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "A sun-bright canvas jacket with brass hardware, built for muddy boots and bright afternoons.",
     rating: 5,
     reviews: 5,
@@ -245,7 +250,7 @@ export const products = [
       { size: "6Y", color: "Red", stock: 0 },
       { size: "8Y", color: "Red", stock: 3 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Wide-wale corduroy trousers in a warm berry red, cut for room to run.",
     rating: 5,
     reviews: 4,
@@ -265,7 +270,7 @@ export const products = [
       { size: "6Y", color: "Stone", stock: 3 },
       { size: "8Y", color: "Stone", stock: 2 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "Durable canvas shorts with a soft brushed lining, made for tide pools and tree climbing alike.",
     rating: 4,
     reviews: 8,
@@ -287,7 +292,7 @@ export const products = [
       { size: "10Y", color: "Ivory", stock: 0 },
       { size: "12Y", color: "Ivory", stock: 2 },
     ],
-    images: ["/src/assets/hero.png"],
+    images: [heroImg],
     description: "A crisp cotton poplin shirt with mother-of-pearl buttons, equally at home at the table or the park.",
     rating: 5,
     reviews: 6,

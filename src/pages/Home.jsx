@@ -1,10 +1,11 @@
+import heroImg from "../assets/pic2.jpeg";
 import { Link } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 import ProductCard from "../components/ProductCard";
 
 const categoryTiles = [
-  { name: "Boys", img: "/src/assets/pic10.jpeg" },
-  { name: "Girls", img: "/src/assets/pic16.jpeg" },
+  { name: "Boys", img: heroImg },
+  { name: "Girls", img: heroImg },
 ];
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative h-[520px] md:h-[600px] flex items-end">
         <img
-          src="/src/assets/pic22.jpeg"
+          src={heroImg}
           alt="Child in linen shirt beneath dappled light"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -45,14 +46,14 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 relative h-96 overflow-hidden">
-            <img src="/src/assets/pic4.jpeg" alt="Premium linen collection" className="w-full h-full object-cover" />
+            <img src={heroImg} alt="Premium linen collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <p className="eyebrow text-cream/80">Premium Linen</p>
               <h3 className="text-2xl">The Solstice Edit</h3>
             </div>
           </div>
           <div className="relative h-96 overflow-hidden">
-            <img src="/src/assets/pic5.jpeg" alt="Heritage knits collection" className="w-full h-full object-cover" />
+            <img src={heroImg} alt="Heritage knits collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <h3 className="text-xl">Heritage Knits</h3>
             </div>

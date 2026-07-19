@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
+import heroImg from "../assets/pic2.jpeg";
 
 export default function Login() {
   const { login } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If ProtectedRoute redirected here, it left the original destination in state.
   const redirectTo = location.state?.from || "/profile";
 
   const [email, setEmail] = useState("");
@@ -24,7 +24,6 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      // TODO: replace with POST /api/auth/login once the Express route exists.
       await login(email, password);
       navigate(redirectTo, { replace: true });
     } catch {
@@ -43,7 +42,6 @@ export default function Login() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 border border-stone/60 bg-white overflow-hidden">
-        {/* Form */}
         <div className="p-8 md:p-12">
           <h1 className="text-3xl mb-2">Welcome</h1>
           <p className="text-ink/70 mb-8">Sign in to your boutique account.</p>
@@ -89,9 +87,8 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Side panel */}
         <div className="relative hidden md:block">
-          <img src="/src/assets/hero.png" alt="Lavishloom boutique interior" className="w-full h-full object-cover" />
+          <img src={heroImg} alt="Lavishloom boutique interior" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-indigo/70" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-cream px-10">
             <h2 className="text-2xl mb-4">New to the family?</h2>
