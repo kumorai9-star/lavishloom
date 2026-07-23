@@ -44,14 +44,14 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 relative h-96 overflow-hidden">
-            <img src="/images/pic16.jpeg" alt="Premium linen collection" className="w-full h-full object-cover" />
+            <img src="/images/pic5.jpeg" alt="Premium linen collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <p className="eyebrow text-cream/80">Premium Linen</p>
               <h3>The Solstice Edit</h3>
             </div>
           </div>
           <div className="relative h-96 overflow-hidden">
-            <img src="/images/pic6.jpeg" alt="Heritage knits collection" className="w-full h-full object-cover" />
+            <img src="/images/pic21.jpeg" alt="Heritage knits collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <h3>Heritage Knits</h3>
             </div>
