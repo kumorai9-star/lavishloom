@@ -17,7 +17,7 @@ export default function Home() {
       {/* Hero */}
       <section className="relative h-[520px] md:h-[600px] flex items-end">
         <img
-          src="/images/pic22.jpeg"
+          src="/images/pic21.jpeg"
           alt="Child in linen shirt beneath dappled light"
           className="absolute inset-0 w-full h-full object-cover"
         />
