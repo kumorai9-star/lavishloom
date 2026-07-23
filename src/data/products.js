@@ -39,7 +39,7 @@ export const products = [
       { size: "8-9Y", color: "Stone", stock: 0 },
     ],
     images: [
-      { url: "/images/pic1.jpeg", alt: "Heirloom Denim Utility Jacket, front view" },
+      { url: "/images/pic16.jpeg", alt: "Heirloom Denim Utility Jacket, front view" },
       { url: "/images/pic2.jpeg", alt: "Heirloom Denim Utility Jacket, detail view" },
       { url: "/images/pic10.jpeg", alt: "Heirloom Denim Utility Jacket, back view" },
     ],
