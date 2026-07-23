@@ -1,22 +1,25 @@
 import { useState } from "react";
+import { useStore } from "../context/StoreContext";
 
 export default function Footer() {
+  const { subscribe } = useStore();
   const [email, setEmail] = useState("");
-  const [joined, setJoined] = useState(false);
+  const [message, setMessage] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email) return;
-    setJoined(true);
-    setEmail("");
+    const result = subscribe(email);
+    setMessage(result.message);
+    if (result.success) setEmail("");
+    setTimeout(() => setMessage(null), 4000);
   };
 
   return (
     <footer className="bg-stone/30 border-t border-stone/60 mt-20">
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div>
-          <h3 className="font-display text-lg mb-3">Lavishloom Kidz</h3>
-          <p className="text-sm text-ink/70 leading-relaxed">
+          <h3>Lavishloom Kidz</h3>
+          <p className="text-ink/70 leading-relaxed mt-3">
             Curating high-end aesthetics for the next generation of unhurried dreamers.
           </p>
         </div>
@@ -41,24 +44,21 @@ export default function Footer() {
 
         <div>
           <h4 className="eyebrow mb-4">Newsletter</h4>
-          <p className="text-sm text-ink/70 mb-3">Join our atelier for exclusive previews and stories of craftsmanship.</p>
-          {joined ? (
-            <p className="text-sm text-terracotta">You're on the list — welcome in.</p>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@address.com"
-                className="flex-1 bg-white border border-stone px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo"
-              />
-              <button type="submit" className="bg-indigo text-cream text-sm px-5 hover:bg-ink transition-colors">
-                Join
-              </button>
-            </form>
-          )}
+          <p className="text-ink/70 mb-3">Subscribe to get notified the moment new pieces arrive.</p>
+          <form onSubmit={handleSubmit} className="flex">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="email@address.com"
+              className="flex-1 bg-white border border-stone px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo"
+            />
+            <button type="submit" className="bg-indigo text-cream text-sm px-5 hover:bg-ink transition-colors">
+              Join
+            </button>
+          </form>
+          {message && <p className="text-sm text-terracotta mt-2">{message}</p>}
         </div>
       </div>
 

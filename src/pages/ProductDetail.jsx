@@ -53,8 +53,8 @@ export default function ProductDetail() {
         <div>
           <div className="aspect-[4/5] bg-stone/30 overflow-hidden mb-4">
             <img
-              src={product.images[0]}
-              alt={product.name}
+              src={product.images[0]?.url}
+              alt={product.images[0]?.alt || product.name}
               className={`w-full h-full object-cover ${productSoldOut ? "opacity-60 grayscale" : ""}`}
             />
           </div>
@@ -62,7 +62,7 @@ export default function ProductDetail() {
             <div className="grid grid-cols-2 gap-4">
               {product.images.slice(1).map((img, i) => (
                 <div key={i} className="aspect-square bg-stone/30 overflow-hidden">
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>

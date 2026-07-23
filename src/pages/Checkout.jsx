@@ -1,19 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 
 export default function Checkout() {
-  const { cart, cartTotal, clearCart } = useStore();
+  const { cart, cartTotal, clearCart, addOrder, user, profile } = useStore();
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    email: "",
-    fullName: "",
-    contactNumber: "",
-    address: "",
+    email: user?.email || "",
+    fullName: profile?.fullName || "",
+    contactNumber: profile?.phone || "",
+    address: profile?.address || "",
     city: "",
     postalCode: "",
   });
   const [placing, setPlacing] = useState(false);
+
+  useEffect(() => {
+    setForm((f) => ({
+      ...f,
+      email: user?.email || f.email,
+      fullName: profile?.fullName || f.fullName,
+      contactNumber: profile?.phone || f.contactNumber,
+      address: profile?.address || f.address,
+    }));
+  }, [user, profile]);
 
   const shipping = cartTotal > 250 || cartTotal === 0 ? 0 : 12;
   const total = +(cartTotal + shipping).toFixed(2);
@@ -22,56 +33,42 @@ export default function Checkout() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: POST /api/orders with { form, cart, total } once the Express route exists.
     setPlacing(true);
     setTimeout(() => {
+      addOrder({
+        items: cart.map((item) => ({
+          name: item.name,
+          size: item.size,
+          color: item.color,
+          qty: item.qty,
+          price: item.price,
+          image: item.image,
+        })),
+        shipping: { ...form },
+        subtotal: cartTotal,
+        shippingCost: shipping,
+        total,
+      });
       clearCart();
-      navigate("/");
+      navigate("/profile");
     }, 1200);
   };
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
-      <h1 className="text-3xl mb-10">Checkout</h1>
+      <h1 className="mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         <form onSubmit={handleSubmit}>
-          <h2 className="text-xl mb-6">Shipping Information</h2>
+          <h2 className="mb-6">Shipping Information</h2>
           <div className="space-y-4">
-            <Field
-              label="Email Address"
-              type="email"
-              value={form.email}
-              onChange={update("email")}
-              placeholder="example@lavishloom.com"
-            />
-            <Field
-              label="Full Name"
-              value={form.fullName}
-              onChange={update("fullName")}
-              placeholder="Constance Rivers"
-            />
-            <Field
-              label="Contact Number"
-              type="tel"
-              value={form.contactNumber}
-              onChange={update("contactNumber")}
-              placeholder="+977 98XXXXXXXX"
-            />
-            <Field
-              label="Shipping Address"
-              value={form.address}
-              onChange={update("address")}
-              placeholder="123 Atelier Lane"
-            />
+            <Field label="Email Address" type="email" value={form.email} onChange={update("email")} placeholder="example@lavishloom.com" />
+            <Field label="Full Name" value={form.fullName} onChange={update("fullName")} placeholder="Your full name" />
+            <Field label="Contact Number" type="tel" value={form.contactNumber} onChange={update("contactNumber")} placeholder="+977 98XXXXXXXX" />
+            <Field label="Shipping Address" value={form.address} onChange={update("address")} placeholder="123 Atelier Lane" />
             <div className="grid grid-cols-2 gap-4">
               <Field label="City" value={form.city} onChange={update("city")} placeholder="Kathmandu" />
-              <Field
-                label="Postal Code"
-                value={form.postalCode}
-                onChange={update("postalCode")}
-                placeholder="44600"
-              />
+              <Field label="Postal Code" value={form.postalCode} onChange={update("postalCode")} placeholder="44600" />
             </div>
           </div>
 
@@ -80,9 +77,8 @@ export default function Checkout() {
           </button>
         </form>
 
-        {/* Order Summary */}
         <aside className="bg-white p-6 border border-stone/60 h-fit">
-          <h2 className="text-xl mb-6">Order Summary</h2>
+          <h2 className="mb-6">Order Summary</h2>
           <div className="space-y-4 mb-6">
             {cart.map((item) => (
               <div key={item.key} className="flex gap-3">

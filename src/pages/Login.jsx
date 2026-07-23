@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
-import heroImg from "../assets/pic2.jpeg";
 
 export default function Login() {
   const { login } = useStore();
@@ -43,14 +42,12 @@ export default function Login() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 border border-stone/60 bg-white overflow-hidden">
         <div className="p-8 md:p-12">
-          <h1 className="text-3xl mb-2">Welcome</h1>
+          <h1 className="mb-2">Welcome</h1>
           <p className="text-ink/70 mb-8">Sign in to your boutique account.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <label className="block">
-              <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">
-                Email Address
-              </span>
+              <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Email Address</span>
               <input
                 type="email"
                 value={email}
@@ -88,10 +85,10 @@ export default function Login() {
         </div>
 
         <div className="relative hidden md:block">
-          <img src={heroImg} alt="Lavishloom boutique interior" className="w-full h-full object-cover" />
+          <img src="/images/pic22.jpeg" alt="Lavishloom boutique interior" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-indigo/70" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-cream px-10">
-            <h2 className="text-2xl mb-4">New to the family?</h2>
+            <h2 className="mb-4">New to the family?</h2>
             <p className="text-cream/85 mb-8">
               Join Lavishloom Kidz for curated collections, exclusive early access, and a
               personalized shopping experience tailored for your little ones.

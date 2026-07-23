@@ -13,7 +13,7 @@ export default function Cart() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-14">
-      <h1 className="text-3xl mb-10">Your Shopping Cart</h1>
+      <h1 className="mb-10">Your Shopping Cart</h1>
 
       {cart.length === 0 ? (
         <div className="text-center py-20">
@@ -31,7 +31,7 @@ export default function Cart() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-display text-lg">{item.name}</h3>
+                      <h3>{item.name}</h3>
                       <p className="text-xs text-ink/60 mt-1">
                         SIZE: {item.size} | COLOR: {item.color}
                       </p>
@@ -40,19 +40,9 @@ export default function Cart() {
                   </div>
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center border border-stone">
-                      <button
-                        className="px-3 py-1"
-                        onClick={() => updateQty(item.key, item.qty - 1)}
-                      >
-                        −
-                      </button>
+                      <button className="px-3 py-1" onClick={() => updateQty(item.key, item.qty - 1)}>−</button>
                       <span className="px-3">{item.qty}</span>
-                      <button
-                        className="px-3 py-1"
-                        onClick={() => updateQty(item.key, item.qty + 1)}
-                      >
-                        +
-                      </button>
+                      <button className="px-3 py-1" onClick={() => updateQty(item.key, item.qty + 1)}>+</button>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.key)}
@@ -66,9 +56,8 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Summary */}
           <aside className="bg-white p-6 border border-stone/60 h-fit">
-            <h2 className="text-xl mb-6">Order Summary</h2>
+            <h2 className="mb-6">Order Summary</h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-ink/70">Subtotal</span>
@@ -112,9 +101,7 @@ export default function Cart() {
                 You'll need to sign in to save and complete your order.
               </p>
             )}
-            <p className="text-xs text-center text-ink/50 mt-2">
-              🔒 Secure checkout powered by Lavishloom
-            </p>
+            <p className="text-xs text-center text-ink/50 mt-2">🔒 Secure checkout powered by Lavishloom</p>
           </aside>
         </div>
       )}

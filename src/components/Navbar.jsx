@@ -1,12 +1,7 @@
 import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../context/StoreContext";
-
-const navLinks = [
-  { label: "Shop", to: "/shop" },
-  { label: "Boys", to: "/shop?category=Boys" },
-  { label: "Girls", to: "/shop?category=Girls" },
-];
+import { categories } from "../data/products";
 
 export default function Navbar() {
   const { cartCount, user } = useStore();
@@ -16,6 +11,11 @@ export default function Navbar() {
   const [query, setQuery] = useState("");
   const [searchParams] = useSearchParams();
   const activeCategory = searchParams.get("category");
+
+  const navLinks = [
+    { label: "Shop", to: "/shop" },
+    ...categories.map((c) => ({ label: c, to: `/shop?category=${c}` })),
+  ];
 
   const submitSearch = (e) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className=" border-b border-stone/60 bg-cream sticky top-0 z-40">
+    <header className="border-b border-stone/60 bg-cream sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
         <Link to="/" className="font-display text-xl md:text-2xl tracking-wide text-ink">
           Lavishloom Kidz
@@ -86,7 +86,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Expandable search bar */}
       {searchOpen && (
         <div className="absolute left-0 right-0 top-full bg-cream border-b border-stone/60 py-4 shadow-sm z-30">
           <form onSubmit={submitSearch} className="max-w-7xl mx-auto px-6 md:px-10 flex gap-3">
