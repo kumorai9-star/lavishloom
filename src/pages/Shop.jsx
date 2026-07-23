@@ -11,8 +11,6 @@ export default function Shop() {
   const { products } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Category and search both come from the URL so they're shareable/linkable
-  // (?category=Boys, ?search=red%20trousers)
   const activeCategory = searchParams.get("category") || "All";
   const urlSearch = searchParams.get("search") || "";
 
@@ -22,7 +20,6 @@ export default function Shop() {
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
 
-  // Keep the input box in sync if the URL changes (e.g. navbar search / back button)
   useEffect(() => {
     setSearchInput(urlSearch);
   }, [urlSearch]);
@@ -90,13 +87,12 @@ export default function Shop() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-14">
-      <h1 className="text-3xl md:text-4xl mb-3">The Curated Archive</h1>
+      <h1 className="mb-3">The Curated Archive</h1>
       <p className="text-ink/70 max-w-xl mb-8">
         Discover our latest editorial collections, where artisanal craftsmanship meets the
         whimsical spirit of childhood.
       </p>
 
-      {/* Search box */}
       <form onSubmit={applySearch} className="flex gap-3 mb-8 max-w-xl">
         <input
           value={searchInput}
@@ -109,7 +105,6 @@ export default function Shop() {
         </button>
       </form>
 
-      {/* Category pills — the primary way to browse */}
       <div className="flex flex-wrap gap-2 mb-10 pb-8 border-b border-stone/60">
         <button
           onClick={() => setActiveCategory("All")}
@@ -133,7 +128,6 @@ export default function Shop() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-10">
-        {/* Filters */}
         <aside>
           <div className="mb-8">
             <p className="eyebrow mb-4">Collection</p>
@@ -192,7 +186,6 @@ export default function Shop() {
           )}
         </aside>
 
-        {/* Grid */}
         <div>
           <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
             <p className="text-sm text-ink/60">

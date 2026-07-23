@@ -5,15 +5,15 @@ import { isProductSoldOut } from "../data/products";
 export default function ProductCard({ product }) {
   const { wishlist, toggleWishlist } = useStore();
   const isWishlisted = wishlist.includes(product._id);
-  const soldOut = isProductSoldOut(product); // true only if EVERY size/color combo is at 0
+  const soldOut = isProductSoldOut(product);
 
   return (
     <div className="group">
       <div className="relative overflow-hidden bg-stone/30 aspect-[4/5]">
         <Link to={`/product/${product._id}`}>
           <img
-            src={product.images?.[0]}
-            alt={product.name}
+            src={product.images?.[0]?.url}
+            alt={product.images?.[0]?.alt || product.name}
             className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
               soldOut ? "opacity-50 grayscale" : ""
             }`}
@@ -53,9 +53,7 @@ export default function ProductCard({ product }) {
       </div>
 
       <Link to={`/product/${product._id}`} className="block mt-4">
-        <h3 className={`font-display text-base ${soldOut ? "text-ink/50" : "text-ink"}`}>
-          {product.name}
-        </h3>
+        <h3 className={soldOut ? "text-ink/50" : "text-ink"}>{product.name}</h3>
         {product.collection && (
           <p className="text-xs text-ink/60 mt-0.5">{product.collection}</p>
         )}

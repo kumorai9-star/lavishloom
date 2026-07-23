@@ -1,23 +1,33 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 
-const orders = [
-  { id: "#LK-98210", date: "Oct 24, 2025", status: "DELIVERED", total: 432.5 },
-  { id: "#LK-97554", date: "Sep 12, 2025", status: "DELIVERED", total: 210.0 },
-  { id: "#LK-96201", date: "Aug 05, 2025", status: "RETURNED", total: 89.0 },
-];
-
 const statusColor = {
-  DELIVERED: "bg-green-100 text-green-700",
-  RETURNED: "bg-stone/60 text-ink/60",
-  SHIPPED: "bg-blue-100 text-blue-700",
-  PROCESSING: "bg-yellow-100 text-yellow-700",
-  PENDING: "bg-orange-100 text-orange-700",
+  Processing: "bg-yellow-100 text-yellow-700",
+  Shipped: "bg-blue-100 text-blue-700",
+  Delivered: "bg-green-100 text-green-700",
+  Returned: "bg-stone/60 text-ink/60",
 };
 
 export default function Profile() {
-  const { user, logout, wishlist, products } = useStore();
+  const { user, profile, updateProfile, orders, wishlist, products, logout } = useStore();
   const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    fullName: profile.fullName || "",
+    phone: profile.phone || "",
+    address: profile.address || "",
+  });
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      fullName: profile.fullName || "",
+      phone: profile.phone || "",
+      address: profile.address || "",
+    });
+  }, [profile]);
+
   const wishlistedProducts = products.filter((p) => wishlist.includes(p._id));
 
   const handleLogout = () => {
@@ -25,15 +35,33 @@ export default function Profile() {
     navigate("/");
   };
 
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    updateProfile(form);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const formatDate = (iso) => {
+    try {
+      return new Date(iso).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return iso;
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-8 border-b border-stone/60">
         <div>
-          <h1 className="text-3xl">Welcome, {user?.name}</h1>
-          <p className="text-ink/70 mt-1">Curating timeless pieces for your little ones.</p>
+          <h1>Welcome, {profile.fullName || user?.name}</h1>
+          <p className="text-ink/70 mt-1">Manage your details and track your orders.</p>
         </div>
         <div className="flex gap-3">
-          <button className="btn-secondary text-xs">Edit Profile</button>
           <button onClick={handleLogout} className="btn-secondary text-xs">Logout</button>
           {user?.isAdmin && (
             <Link to="/admin" className="btn-primary text-xs flex items-center">
@@ -43,28 +71,53 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
-        <div className="bg-white border border-stone/60 p-6 h-fit">
-          <h2 className="text-lg mb-5">Personal Info</h2>
-          <dl className="space-y-4 text-sm">
-            <div>
-              <dt className="text-xs uppercase text-ink/50">Email Address</dt>
-              <dd className="mt-1">{user?.email}</dd>
+      <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] gap-8">
+        <div className="space-y-8">
+          <form onSubmit={handleSaveProfile} className="bg-white border border-stone/60 p-6">
+            <h2 className="mb-5">Personal Info</h2>
+            <div className="space-y-4">
+              <label className="block">
+                <span className="text-xs uppercase text-ink/50 block mb-1">Full Name</span>
+                <input
+                  value={form.fullName}
+                  onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                  placeholder="Your full name"
+                  className="input-field"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase text-ink/50 block mb-1">Email Address</span>
+                <input value={user?.email || ""} disabled className="input-field bg-stone/20 text-ink/60" />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase text-ink/50 block mb-1">Contact Number</span>
+                <input
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="+977 98XXXXXXXX"
+                  className="input-field"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase text-ink/50 block mb-1">Delivery Address</span>
+                <textarea
+                  value={form.address}
+                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  rows={3}
+                  placeholder="Street, City, Postal Code"
+                  className="input-field"
+                />
+              </label>
             </div>
-            <div>
-              <dt className="text-xs uppercase text-ink/50">Phone</dt>
-              <dd className="mt-1">+1 (555) 012-3456</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase text-ink/50">Delivery Address</dt>
-              <dd className="mt-1">124 Boutique Lane, Savannah, GA</dd>
-            </div>
-          </dl>
+            <button type="submit" className="btn-primary w-full mt-5 text-xs">
+              {saved ? "Saved ✓" : "Save Changes"}
+            </button>
+          </form>
 
-          <div className="mt-8 pt-6 border-t border-stone/60">
+          <div className="bg-white border border-stone/60 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg">My Wishlist</h2>
-              <Link to="/shop" className="text-xs underline">View All</Link>
+              <h2>My Wishlist</h2>
+              <Link to="/shop" className="text-xs underline">Browse</Link>
             </div>
             {wishlistedProducts.length === 0 ? (
               <p className="text-sm text-ink/50">Nothing saved yet.</p>
@@ -72,7 +125,11 @@ export default function Profile() {
               <div className="grid grid-cols-2 gap-3">
                 {wishlistedProducts.map((p) => (
                   <Link key={p._id} to={`/product/${p._id}`}>
-                    <img src={p.images[0]} alt={p.name} className="aspect-square object-cover mb-2" />
+                    <img
+                      src={p.images?.[0]?.url}
+                      alt={p.images?.[0]?.alt || p.name}
+                      className="aspect-square object-cover mb-2"
+                    />
                     <p className="text-xs">{p.name}</p>
                     <p className="text-xs text-ink/60">${p.price.toFixed(2)}</p>
                   </Link>
@@ -82,44 +139,38 @@ export default function Profile() {
           </div>
         </div>
 
-        <div>
-          <div className="bg-white border border-stone/60 p-6 mb-6">
-            <h2 className="text-lg mb-5">Recent Orders</h2>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase text-ink/50 border-b border-stone/60">
-                  <th className="pb-3">Order ID</th>
-                  <th className="pb-3">Date</th>
-                  <th className="pb-3">Status</th>
-                  <th className="pb-3 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => (
-                  <tr key={o.id} className="border-b border-stone/30 last:border-0">
-                    <td className="py-4">{o.id}</td>
-                    <td className="py-4 text-ink/70">{o.date}</td>
-                    <td className="py-4">
-                      <span className={`text-xs px-2 py-1 rounded-full ${statusColor[o.status]}`}>
-                        {o.status}
-                      </span>
-                    </td>
-                    <td className="py-4 text-right">${o.total.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="bg-indigo text-cream p-6 flex items-center justify-between">
-            <div>
-              <p className="font-medium">Lavishloom Loyalty</p>
-              <p className="text-sm text-cream/80">You have 1,250 points to spend</p>
+        <div className="bg-white border border-stone/60 p-6 h-fit">
+          <h2 className="mb-5">Order & Transaction History</h2>
+          {orders.length === 0 ? (
+            <p className="text-sm text-ink/50">You haven't placed any orders yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((o) => (
+                <div key={o.id} className="border border-stone/50 p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-sm">{o.id}</p>
+                      <p className="text-xs text-ink/50">{formatDate(o.date)}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${statusColor[o.status] || "bg-stone/40 text-ink/60"}`}>
+                      {o.status}
+                    </span>
+                  </div>
+                  <div className="text-sm text-ink/70 space-y-1 mb-2">
+                    {o.items?.map((item, i) => (
+                      <p key={i}>
+                        {item.name} — {item.size} / {item.color} × {item.qty}
+                      </p>
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-sm border-t border-stone/40 pt-2">
+                    <span className="text-ink/60">Total</span>
+                    <span className="font-medium">${o.total?.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <button className="bg-cream text-ink text-xs tracking-widest2 uppercase px-5 py-3">
-              Redeem Now
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
