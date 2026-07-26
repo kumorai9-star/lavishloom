@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
-import { isProductSoldOut } from "../data/products";
+import { isProductSoldOut, formatPrice } from "../data/products";
 
 export default function ProductCard({ product }) {
   const { wishlist, toggleWishlist } = useStore();
@@ -9,7 +9,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="group">
-      <div className="relative overflow-hidden bg-stone/30 aspect-[4/5]">
+      <div className="relative overflow-hidden bg-stone/30 aspect-square">
         <Link to={`/product/${product._id}`}>
           <img
             src={product.images?.[0]?.url}
@@ -53,13 +53,15 @@ export default function ProductCard({ product }) {
       </div>
 
       <Link to={`/product/${product._id}`} className="block mt-4">
-        <h3 className={soldOut ? "text-ink/50" : "text-ink"}>{product.name}</h3>
+        <h3 className={`text-base ${soldOut ? "text-ink/50" : "text-ink"}`}>
+          {product.name}
+        </h3>
         {product.collection && (
           <p className="text-xs text-ink/60 mt-0.5">{product.collection}</p>
         )}
         <div className="flex items-center gap-2 mt-1">
           <p className={`text-sm ${soldOut ? "text-ink/40" : "text-ink"}`}>
-            ${product.price.toFixed(2)}
+            {formatPrice(product.price)}
           </p>
           {soldOut && <span className="text-xs text-ink/40">Currently unavailable</span>}
         </div>

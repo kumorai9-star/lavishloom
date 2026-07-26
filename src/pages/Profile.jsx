@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
+import { formatPrice } from "../data/products";
 
 const statusColor = {
   Processing: "bg-yellow-100 text-yellow-700",
@@ -131,7 +132,7 @@ export default function Profile() {
                       className="aspect-square object-cover mb-2"
                     />
                     <p className="text-xs">{p.name}</p>
-                    <p className="text-xs text-ink/60">${p.price.toFixed(2)}</p>
+                    <p className="text-xs text-ink/60">{formatPrice(p.price)}</p>
                   </Link>
                 ))}
               </div>
@@ -165,7 +166,7 @@ export default function Profile() {
                   </div>
                   <div className="flex justify-between text-sm border-t border-stone/40 pt-2">
                     <span className="text-ink/60">Total</span>
-                    <span className="font-medium">${o.total?.toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(o.total || 0)}</span>
                   </div>
                 </div>
               ))}

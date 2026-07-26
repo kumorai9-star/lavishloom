@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../context/StoreContext";
 import ProductCard from "../components/ProductCard";
+import HeroBanner from "../components/HeroBanner";
 
 const categoryTiles = [
   { name: "Boys", img: "/images/pic10.jpeg" },
@@ -14,25 +15,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative h-[520px] md:h-[600px] flex items-end">
-        <img
-          src="/images/pic22.jpeg"
-          alt="Child in linen shirt beneath dappled light"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-ink/10 to-transparent" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 pb-16 w-full text-cream">
-          <p className="eyebrow text-terracotta mb-3">Season of Grace</p>
-          <h1 className="max-w-xl leading-tight">Crafted for the unhurried childhood.</h1>
-          <p className="mt-4 max-w-md text-cream/90">
-            Discover a collection where timeless craftsmanship meets the whimsical spirit of play.
-          </p>
-          <Link to="/shop" className="inline-block mt-8 btn-primary">
-            Explore Collection
-          </Link>
-        </div>
-      </section>
+      <HeroBanner />
 
       {/* Curated Collections */}
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-20">
@@ -43,15 +26,15 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 relative h-96 overflow-hidden">
-            <img src="/images/pic5.jpeg" alt="Premium linen collection" className="w-full h-full object-cover" />
+          <div className="md:col-span-2 relative h-72 overflow-hidden">
+            <img src="/images/pic16.jpeg" alt="Premium linen collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <p className="eyebrow text-cream/80">Premium Linen</p>
               <h3>The Solstice Edit</h3>
             </div>
           </div>
-          <div className="relative h-96 overflow-hidden">
-            <img src="/images/pic21.jpeg" alt="Heritage knits collection" className="w-full h-full object-cover" />
+          <div className="relative h-72 overflow-hidden">
+            <img src="/images/pic6.jpeg" alt="Heritage knits collection" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 text-cream">
               <h3>Heritage Knits</h3>
             </div>

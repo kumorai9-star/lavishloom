@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingScreen from "./components/LoadingScreen";
+
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -12,6 +15,15 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 900);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <LoadingScreen />;
+
   return (
     <div className="min-h-screen flex flex-col bg-cream">
       <Navbar />
@@ -55,5 +67,3 @@ function App() {
 }
 
 export default App;
-
-

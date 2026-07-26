@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
+import { formatPrice } from "../data/products";
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart, addOrder, user, profile } = useStore();
@@ -26,8 +27,8 @@ export default function Checkout() {
     }));
   }, [user, profile]);
 
-  const shipping = cartTotal > 250 || cartTotal === 0 ? 0 : 12;
-  const total = +(cartTotal + shipping).toFixed(2);
+  const shipping = cartTotal > 25000 || cartTotal === 0 ? 0 : 500;
+  const total = cartTotal + shipping;
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -87,23 +88,23 @@ export default function Checkout() {
                   <p className="font-medium">{item.name}</p>
                   <p className="text-ink/60 text-xs">Size: {item.size}</p>
                 </div>
-                <p className="text-sm">${(item.price * item.qty).toFixed(2)}</p>
+                <p className="text-sm">{formatPrice(item.price * item.qty)}</p>
               </div>
             ))}
           </div>
           <div className="border-t border-stone pt-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-ink/70">Subtotal</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>{formatPrice(cartTotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-ink/70">Shipping</span>
-              <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+              <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
             </div>
           </div>
           <div className="border-t border-stone mt-3 pt-3 flex justify-between text-lg">
             <span>Total</span>
-            <span className="font-medium">${total.toFixed(2)}</span>
+            <span className="font-medium">{formatPrice(total)}</span>
           </div>
           <p className="text-xs text-ink/50 mt-4">
             🛡 Your information is kept secure and is never shared with third parties.
