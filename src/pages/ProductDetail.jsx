@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
-import { getVariantStock, isProductSoldOut } from "../data/products";
+import { getVariantStock, isProductSoldOut, formatPrice } from "../data/products";
 import ProductCard from "../components/ProductCard";
 
 export default function ProductDetail() {
@@ -49,7 +49,6 @@ export default function ProductDetail() {
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Images */}
         <div>
           <div className="aspect-[4/5] bg-stone/30 overflow-hidden mb-4">
             <img
@@ -69,12 +68,11 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* Info */}
         <div>
           <p className="eyebrow mb-2">{product.collection}</p>
-          <h1 className="text-2xl md:text-3xl mb-2">{product.name}</h1>
+          <h1 className="mb-2">{product.name}</h1>
           <div className="flex items-center gap-3 mb-5">
-            <span className="text-xl">${product.price.toFixed(2)}</span>
+            <span className="text-xl">{formatPrice(product.price)}</span>
             <span className="text-terracotta text-sm">{"★".repeat(product.rating)}</span>
             <span className="text-sm text-ink/60">({product.reviews} Reviews)</span>
           </div>
@@ -86,7 +84,6 @@ export default function ProductDetail() {
             </p>
           )}
 
-          {/* Sizes */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs tracking-widest2 uppercase">Select Size</p>
@@ -112,7 +109,6 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Colors */}
           <div className="mb-8">
             <p className="text-xs tracking-widest2 uppercase mb-3">Color: {color}</p>
             <div className="flex gap-3">
@@ -153,9 +149,7 @@ export default function ProductDetail() {
             <p className="text-sm text-terracotta mb-3 mt-2">Only {currentStock} left in this size/color</p>
           )}
           {currentStock === 0 && (
-            <p className="text-sm text-ink/50 mb-3 mt-2">
-              Try a different size or color above.
-            </p>
+            <p className="text-sm text-ink/50 mb-3 mt-2">Try a different size or color above.</p>
           )}
 
           <button
@@ -185,16 +179,15 @@ export default function ProductDetail() {
             </button>
             {openShipping && (
               <p className="pb-4 text-sm text-ink/70 leading-relaxed">
-                Complimentary express shipping on orders over $250. 30-day curated return policy.
+                Complimentary express shipping on orders over Rs. 25,000. 30-day curated return policy.
               </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Related */}
       <section className="mt-20">
-        <h2 className="text-lg mb-8">You may also like</h2>
+        <h2 className="mb-8">You may also like</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {related.map((p) => (
             <ProductCard key={p._id} product={p} />

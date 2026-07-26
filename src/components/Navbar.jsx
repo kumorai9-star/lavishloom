@@ -1,7 +1,13 @@
 import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../context/StoreContext";
-import { categories } from "../data/products";
+import LogoMark from "./LogoMark";
+
+const navLinks = [
+  { label: "Shop", to: "/shop" },
+  { label: "Boys", to: "/shop?category=Boys" },
+  { label: "Girls", to: "/shop?category=Girls" },
+];
 
 export default function Navbar() {
   const { cartCount, user } = useStore();
@@ -11,11 +17,6 @@ export default function Navbar() {
   const [query, setQuery] = useState("");
   const [searchParams] = useSearchParams();
   const activeCategory = searchParams.get("category");
-
-  const navLinks = [
-    { label: "Shop", to: "/shop" },
-    ...categories.map((c) => ({ label: c, to: `/shop?category=${c}` })),
-  ];
 
   const submitSearch = (e) => {
     e.preventDefault();
@@ -28,9 +29,9 @@ export default function Navbar() {
 
   return (
     <header className="border-b border-stone/60 bg-cream sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
-        <Link to="/" className="font-display text-xl md:text-2xl tracking-wide text-ink">
-          Lavishloom Kidz
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-3 flex items-center justify-between">
+        <Link to="/" aria-label="Lavishloom Kidz — Home">
+          <LogoMark />
         </Link>
 
         <nav className="hidden md:flex items-center gap-10 text-sm tracking-widest2 uppercase">

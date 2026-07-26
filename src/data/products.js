@@ -6,6 +6,11 @@
 // <img src={image.url} alt={image.alt}>. Files live in /public/images/ and are
 // referenced as plain string paths like "/images/pic1.jpeg" — no imports needed.
 
+// Currency formatting — Nepalese Rupees (NPR) with the Rs. symbol.
+// All prices below are stored as plain numbers; this is the single place that
+// controls how they're displayed everywhere in the app.
+export const formatPrice = (amount) => `Rs. ${amount.toLocaleString("en-IN")}`;
+
 export const categories = ["Boys", "Girls", "Newborn"];
 
 export const sizeRange = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y"];
@@ -63,7 +68,7 @@ export const products = [
       { size: "6Y", color: "Sandstone", stock: 4 },
       { size: "8Y", color: "Sandstone", stock: 2 },
     ],
-    images: [{ url: "/images/pic2.jpeg", alt: "Artisan Wide Trousers in sandstone" }],
+    images: [{ url: "/images/pic16.jpeg", alt: "Artisan Wide Trousers in sandstone" }],
     description: "Relaxed-fit trousers in brushed cotton twill, built for climbing trees and long afternoons outside.",
     rating: 5,
     reviews: 21,
@@ -153,9 +158,7 @@ export const products = [
       { size: "8Y", color: "Sandstone", stock: 0 },
       { size: "10Y", color: "Sandstone", stock: 2 },
     ],
-    images: [
-      { url: "/images/pic6.jpeg", alt: "Linen Heritage Set, front view" },
-    ],
+    images: [{ url: "/images/pic6.jpeg", alt: "Linen Heritage Set, front view" }],
     description: "Artisanal weave, sandstone tone — a foundational piece for the curated wardrobe.",
     rating: 5,
     reviews: 18,
@@ -256,40 +259,29 @@ export const products = [
 
 export const getProductById = (id) => products.find((p) => p._id === id);
 
-// Stock for one specific size+color combination. 0 if not found.
 export const getVariantStock = (product, size, color) => {
   const variant = product.variants?.find((v) => v.size === size && v.color === color);
   return variant ? variant.stock : 0;
 };
 
-// True only when every size/color combination is at 0.
 export const isProductSoldOut = (product) =>
   !product.variants || product.variants.every((v) => v.stock === 0);
 
-// Colors that still have at least one size in stock.
 export const getAvailableColors = (product) => {
   if (!product.variants) return product.colors?.map((c) => c.name) || [];
   const inStock = new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.color));
   return [...inStock];
 };
 
-// Sizes still in stock for a given color.
 export const getAvailableSizesForColor = (product, color) => {
   if (!product.variants) return product.sizes || [];
   return product.variants.filter((v) => v.color === color && v.stock > 0).map((v) => v.size);
 };
 
-// Products belonging to one category. "All" (or no category) returns everything.
 export const getProductsByCategory = (category) => {
   if (!category || category === "All") return products;
   return products.filter((p) => p.category === category);
 };
-
-// ---- Search ----
-// Understands garment types ("jacket(s)", "trousers/pants", "shorts", "shirt(s)",
-// "tank", "cami", "skirt(s)", "set(s)/ensemble"), gender words ("boy(s)"/"girl(s)"),
-// and falls back to plain substring matching on name/description/collection/color
-// for anything else (colors like "red", "yellow", "black" work this way).
 
 const STOPWORDS = new Set(["for", "in", "with", "the", "a", "an", "of", "and", "on"]);
 

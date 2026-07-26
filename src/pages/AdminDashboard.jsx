@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
-import { categories } from "../data/products";
+import { categories, formatPrice } from "../data/products";
 
 const navItems = ["Dashboard", "Products", "Orders", "Customers", "Analytics"];
 const productTypes = ["Jacket", "Trousers", "Shorts", "Shirt", "Tank", "Cami", "Skirt", "Set"];
@@ -80,7 +80,7 @@ function DashboardOverview({ user }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard label="Total Sales" value="$42,890.00" delta="+12.5%" />
+        <StatCard label="Total Sales" value="Rs. 42,89,000" delta="+12.5%" />
         <StatCard label="New Orders" value="156" delta="+8.2%" />
         <StatCard label="Visitors Today" value="2,405" delta="Stable" neutral />
       </div>
@@ -154,7 +154,7 @@ function ProductsPanel({ products, addProduct, deleteProduct }) {
                   </td>
                   <td className="py-3">{p.name}</td>
                   <td className="py-3 text-ink/70">{p.category}</td>
-                  <td className="py-3">${p.price.toFixed(2)}</td>
+                  <td className="py-3">{formatPrice(p.price)}</td>
                   <td className="py-3">
                     <span className={totalStock === 0 ? "text-terracotta" : ""}>{totalStock}</span>
                   </td>
@@ -237,8 +237,8 @@ function AddProductForm({ addProduct, onDone }) {
           <input value={name} onChange={(e) => setName(e.target.value)} className="input-field" required />
         </label>
         <label className="block">
-          <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Price ($)</span>
-          <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="input-field" required />
+          <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Price (Rs.)</span>
+          <input type="number" step="1" value={price} onChange={(e) => setPrice(e.target.value)} className="input-field" required />
         </label>
         <label className="block">
           <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Category</span>

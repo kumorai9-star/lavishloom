@@ -1,15 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../context/StoreContext";
+import { formatPrice } from "../data/products";
 
 export default function Cart() {
   const { cart, updateQty, removeFromCart, cartTotal, user } = useStore();
   const [promo, setPromo] = useState("");
   const navigate = useNavigate();
 
-  const shipping = cartTotal > 250 || cartTotal === 0 ? 0 : 12;
-  const tax = +(cartTotal * 0.08).toFixed(2);
-  const total = +(cartTotal + shipping + tax).toFixed(2);
+  const shipping = cartTotal > 25000 || cartTotal === 0 ? 0 : 500;
+  const tax = Math.round(cartTotal * 0.08);
+  const total = cartTotal + shipping + tax;
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-14">
@@ -36,7 +37,7 @@ export default function Cart() {
                         SIZE: {item.size} | COLOR: {item.color}
                       </p>
                     </div>
-                    <p className="font-medium">${(item.price * item.qty).toFixed(2)}</p>
+                    <p className="font-medium">{formatPrice(item.price * item.qty)}</p>
                   </div>
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center border border-stone">
@@ -61,22 +62,22 @@ export default function Cart() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-ink/70">Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-ink/70">Shipping</span>
                 <span className={shipping === 0 ? "text-terracotta" : ""}>
-                  {shipping === 0 ? "Complimentary" : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? "Complimentary" : formatPrice(shipping)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-ink/70">Estimated Tax</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>{formatPrice(tax)}</span>
               </div>
             </div>
             <div className="border-t border-stone mt-4 pt-4 flex justify-between items-baseline">
               <span className="text-lg">Total</span>
-              <span className="text-xl font-medium">${total.toFixed(2)}</span>
+              <span className="text-xl font-medium">{formatPrice(total)}</span>
             </div>
 
             <div className="mt-6">
