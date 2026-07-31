@@ -24,7 +24,7 @@ function saveUsersDb(db) {
 }
 
 export function StoreProvider({ children }) {
-  // ---- Products (base catalog + admin additions) ----
+  // ---- Products ----
   const [adminProducts, setAdminProducts] = useState(() => {
     try {
       const saved = localStorage.getItem(ADMIN_PRODUCTS_KEY);
@@ -37,9 +37,7 @@ export function StoreProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(ADMIN_PRODUCTS_KEY, JSON.stringify(adminProducts));
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, [adminProducts]);
 
   const [stockAdjustments, setStockAdjustments] = useState({});
@@ -70,15 +68,68 @@ export function StoreProvider({ children }) {
     sessionStorage.setItem("lavishloom_cart", JSON.stringify(cart));
   }, [cart]);
 
-  // ---- Auth + per-user profile, order history, wishlist ----
-  // Everything is keyed by email in localStorage, so logging out and back in
-  // with the same email restores name/phone/address, past orders, and wishlist.
-  const [user, setUser] = useState(null); // { name, email, isAdmin }
+  // ---- Auth & Orders State ----
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("lavishloom_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [profile, setProfile] = useState({ fullName: "", phone: "", address: "" });
   const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
   const [wishlist, setWishlist] = useState([]);
 
-  const login = async (email, _password) => {
+  // Helper to extract JWT token from state or localStorage
+  const getToken = () => {
+    return user?.token || localStorage.getItem("token") || "";
+  };
+
+  // Fetch orders from MongoDB Backend
+  const fetchMyOrders = async () => {
+    const rawToken = getToken();
+    if (!rawToken) return;
+
+    const authHeader = rawToken.startsWith("Bearer ") ? rawToken : `Bearer ${rawToken}`;
+
+    setLoadingOrders(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/orders/myorders", {
+        headers: {
+          Authorization: authHeader,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch orders from MongoDB:", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  // Fetch orders automatically whenever user logs in or mounts
+  useEffect(() => {
+    if (user) {
+      fetchMyOrders();
+    }
+  }, [user]);
+
+  // Updated Login Function to store token inside user state & local storage
+  const login = async (email, _password, token = null) => {
+    const validToken = token || localStorage.getItem("token") || "";
+
+    if (validToken) {
+      localStorage.setItem("token", validToken);
+    }
+
     const isAdmin = email.toLowerCase().includes("admin");
     const key = email.toLowerCase();
     const usersDb = loadUsersDb();
@@ -97,21 +148,34 @@ export function StoreProvider({ children }) {
       saveUsersDb(usersDb);
     }
 
-    const loggedInUser = { name: record.fullName, email, isAdmin };
+    // Include token directly inside user object
+    const loggedInUser = {
+      name: record.fullName,
+      email,
+      isAdmin,
+      token: validToken,
+    };
+
     setUser(loggedInUser);
+    localStorage.setItem("lavishloom_user", JSON.stringify(loggedInUser));
+
     setProfile({
       fullName: record.fullName || "",
       phone: record.phone || "",
       address: record.address || "",
     });
-    setOrders(record.orders || []);
     setWishlist(record.wishlist || []);
+
+    // Load orders from Backend API
+    await fetchMyOrders();
 
     return loggedInUser;
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("lavishloom_user");
+    localStorage.removeItem("token");
     setProfile({ fullName: "", phone: "", address: "" });
     setOrders([]);
     setWishlist([]);
@@ -133,22 +197,7 @@ export function StoreProvider({ children }) {
   };
 
   const addOrder = (order) => {
-    if (!user) return null;
-    const newOrder = {
-      id: `#LK-${Math.floor(10000 + Math.random() * 89999)}`,
-      date: new Date().toISOString(),
-      status: "Processing",
-      ...order,
-    };
-    setOrders((prev) => {
-      const next = [newOrder, ...prev];
-      const usersDb = loadUsersDb();
-      const key = user.email.toLowerCase();
-      usersDb[key] = { ...usersDb[key], orders: next };
-      saveUsersDb(usersDb);
-      return next;
-    });
-    return newOrder;
+    setOrders((prev) => [order, ...prev]);
   };
 
   const toggleWishlist = (productId) => {
@@ -167,7 +216,7 @@ export function StoreProvider({ children }) {
     });
   };
 
-  // ---- Cart / stock ----
+  // ---- Cart helpers ----
   const adjustVariantStock = (productId, size, color, delta) => {
     const key = `${productId}|${size}|${color}`;
     setStockAdjustments((prev) => ({
@@ -230,7 +279,7 @@ export function StoreProvider({ children }) {
 
   const clearCart = () => setCart([]);
 
-  // ---- Admin: product management ----
+  // ---- Admin helpers ----
   const addProduct = (newProduct) => {
     setAdminProducts((prev) => [...prev, { ...newProduct, _id: `p${Date.now()}` }]);
   };
@@ -273,7 +322,9 @@ export function StoreProvider({ children }) {
     profile,
     updateProfile,
     orders,
+    loadingOrders,
     addOrder,
+    fetchMyOrders,
     addProduct,
     updateProduct,
     deleteProduct,

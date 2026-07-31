@@ -20,7 +20,7 @@ export default function ProductCard({ product }) {
           />
         </Link>
 
-        {product.isNew && !soldOut && (
+        {product.isNewArrival && !soldOut && (
           <span className="absolute top-3 right-3 bg-terracotta text-cream text-[10px] tracking-widest2 uppercase px-3 py-1 rounded-full">
             New
           </span>
@@ -56,8 +56,8 @@ export default function ProductCard({ product }) {
         <h3 className={`text-base ${soldOut ? "text-ink/50" : "text-ink"}`}>
           {product.name}
         </h3>
-        {product.collection && (
-          <p className="text-xs text-ink/60 mt-0.5">{product.collection}</p>
+        {product.collectionName && (
+          <p className="text-xs text-ink/60 mt-0.5">{product.collectionName}</p>
         )}
         <div className="flex items-center gap-2 mt-1">
           <p className={`text-sm ${soldOut ? "text-ink/40" : "text-ink"}`}>

@@ -178,7 +178,7 @@ function AddProductForm({ addProduct, onDone }) {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState(categories[0]);
   const [type, setType] = useState(productTypes[0]);
-  const [collection, setCollectionName] = useState("");
+  const [collectionName, setCollectionName] = useState("");
   const [description, setDescription] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [variants, setVariants] = useState([emptyVariant()]);
@@ -200,7 +200,7 @@ function AddProductForm({ addProduct, onDone }) {
   const addVariantRow = () => setVariants((prev) => [...prev, emptyVariant()]);
   const removeVariantRow = (index) => setVariants((prev) => prev.filter((_, i) => i !== index));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !price || !imagePreview) {
       alert("Please fill in name, price, and upload an image before saving.");
@@ -211,22 +211,26 @@ function AddProductForm({ addProduct, onDone }) {
     const sizes = [...new Set(validVariants.map((v) => v.size))];
     const colorNames = [...new Set(validVariants.map((v) => v.color))];
 
-    addProduct({
-      name,
-      price: Number(price),
-      category,
-      type,
-      collection: collection || "New Arrivals",
-      description: description || "A new addition to the Lavishloom collection.",
-      sizes,
-      colors: colorNames.map((c) => ({ name: c, hex: "#B4713F" })),
-      variants: validVariants,
-      images: [{ url: imagePreview, alt: name }],
-      rating: 5,
-      reviews: 0,
-    });
-
-    onDone();
+    try {
+      await addProduct({
+        name,
+        price: Number(price),
+        category,
+        type,
+        collectionName: collectionName || "New Arrivals",
+        description: description || "A new addition to the Lavishloom collection.",
+        sizes,
+        colors: colorNames.map((c) => ({ name: c, hex: "#B4713F" })),
+        variants: validVariants,
+        images: [{ url: imagePreview, alt: name }],
+        rating: 5,
+        reviews: 0,
+        isNewArrival: true,
+      });
+      onDone();
+    } catch (err) {
+      alert(err.message || "Failed to save product.");
+    }
   };
 
   return (
@@ -258,7 +262,7 @@ function AddProductForm({ addProduct, onDone }) {
         </label>
         <label className="block">
           <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Collection Name</span>
-          <input value={collection} onChange={(e) => setCollectionName(e.target.value)} placeholder="e.g. Latest Arrivals" className="input-field" />
+          <input value={collectionName} onChange={(e) => setCollectionName(e.target.value)} placeholder="e.g. Latest Arrivals" className="input-field" />
         </label>
         <label className="block">
           <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Product Image</span>

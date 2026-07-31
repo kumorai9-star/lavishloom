@@ -11,6 +11,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
+import Register from "./pages/Register"; // FIXED: Imported Register component
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -43,6 +44,7 @@ function App() {
             }
           />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> {/* FIXED: Added route */}
           <Route
             path="/profile"
             element={

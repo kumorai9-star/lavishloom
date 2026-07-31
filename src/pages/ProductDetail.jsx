@@ -69,7 +69,7 @@ export default function ProductDetail() {
         </div>
 
         <div>
-          <p className="eyebrow mb-2">{product.collection}</p>
+          <p className="eyebrow mb-2">{product.collectionName}</p>
           <h1 className="mb-2">{product.name}</h1>
           <div className="flex items-center gap-3 mb-5">
             <span className="text-xl">{formatPrice(product.price)}</span>

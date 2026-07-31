@@ -15,7 +15,7 @@ export default function LogoMark({ className = "h-14 md:h-16" }) {
           style={{ fontFamily: "'Alex Brush', cursive" }}
           className="text-3xl md:text-4xl text-stone-500"
         >
-          Kids
+          Kidz
         </span>
       </div>
 
@@ -40,44 +40,33 @@ export default function LogoMark({ className = "h-14 md:h-16" }) {
 
 function DressIcon({ className }) {
   return (
-    <svg viewBox="0 0 40 52" className={className} fill="none" stroke="currentColor" strokeWidth="1.2">
-      {/* Shoulder straps */}
-      <path d="M13 4 L14 12" strokeLinecap="round" />
-      <path d="M27 4 L26 12" strokeLinecap="round" />
+    <svg viewBox="0 0 40 50" className={className} fill="none" stroke="currentColor" strokeWidth="1.4">
+      {/* Left shoulder strap */}
+      <line x1="14" y1="4" x2="15" y2="11" strokeLinecap="round" />
+      {/* Right shoulder strap */}
+      <line x1="26" y1="4" x2="25" y2="11" strokeLinecap="round" />
 
-      {/* Fitted bodice (fuller neckline, narrower waist) */}
+      {/* Bodice (fitted top, waist narrows in) */}
       <path
-        d="M11 4 Q13 2 15 4 L15 10 Q10 12 9 18 L15 16 Q20 18 25 16 L31 18 Q30 12 25 10 L25 4 Q27 2 29 4 L30 10 Q37 15 35 24 L20 20 L5 24 Q3 15 10 10 Z"
-        strokeLinecap="round"
+        d="M15 11 L25 11 L27 20 L13 20 Z"
         strokeLinejoin="round"
       />
 
       {/* Bow at waist */}
-      <path
-        d="M15 19 Q13 17 11 18 Q13 20 15 19 Q17 21 15 22 Q13 21 15 19"
-        strokeLinecap="round"
-      />
-      <path
-        d="M25 19 Q27 17 29 18 Q27 20 25 19 Q23 21 25 22 Q27 21 25 19"
-        strokeLinecap="round"
-      />
-      <circle cx="20" cy="19.5" r="1.3" fill="currentColor" stroke="none" />
+      <path d="M13 20 L9 18 L11 20 L9 22 L13 20 Z" fill="currentColor" stroke="none" />
+      <path d="M27 20 L31 18 L29 20 L31 22 L27 20 Z" fill="currentColor" stroke="none" />
+      <circle cx="20" cy="20" r="1.3" fill="currentColor" stroke="none" />
 
-      {/* Flared pleated skirt */}
+      {/* Flared skirt */}
       <path
-        d="M5 24 L2 44 Q11 47 20 47 Q29 47 38 44 L35 24 Q28 22 20 22 Q12 22 5 24 Z"
-        strokeLinecap="round"
+        d="M13 20 L4 42 L36 42 L27 20 Z"
         strokeLinejoin="round"
       />
-      <path d="M11 24 L8 45" strokeLinecap="round" />
-      <path d="M20 22.5 L19 47" strokeLinecap="round" />
-      <path d="M29 24 L32 45" strokeLinecap="round" />
 
-      {/* Scalloped hem */}
-      <path
-        d="M2 44 Q5.5 47 9 44 Q12.5 47 16 44 Q19.5 47 23 44 Q26.5 47 30 44 Q33.5 47 38 44"
-        strokeLinecap="round"
-      />
+      {/* Pleat lines */}
+      <line x1="18" y1="21" x2="12" y2="42" strokeLinecap="round" />
+      <line x1="20" y1="21" x2="20" y2="42" strokeLinecap="round" />
+      <line x1="22" y1="21" x2="28" y2="42" strokeLinecap="round" />
     </svg>
   );
 }

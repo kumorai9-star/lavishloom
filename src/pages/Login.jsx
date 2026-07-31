@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 
 export default function Login() {
@@ -17,16 +17,37 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     if (!email || !password) {
       setError("Please enter your email and password.");
       return;
     }
+
     setLoading(true);
+
     try {
-      await login(email, password);
+      // 1. Send credentials to Node.js / Express Backend
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Invalid email or password");
+      }
+
+      // 2. Pass email, password, and token to StoreContext
+      await login(data.email || email, password, data.token);
+
+      // 3. Navigate to checkout or profile
       navigate(redirectTo, { replace: true });
-    } catch {
-      setError("We couldn't sign you in. Check your details and try again.");
+    } catch (err) {
+      setError(err.message || "We couldn't sign you in. Check your details and try again.");
     } finally {
       setLoading(false);
     }
@@ -42,38 +63,50 @@ export default function Login() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 border border-stone/60 bg-white overflow-hidden">
         <div className="p-8 md:p-12">
-          <h1 className="mb-2">Welcome</h1>
+          <h1 className="mb-2 font-semibold text-2xl">Welcome</h1>
           <p className="text-ink/70 mb-8">Sign in to your boutique account.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <label className="block">
-              <span className="text-xs tracking-widest2 uppercase text-ink/70 block mb-2">Email Address</span>
+              <span className="text-xs tracking-widest uppercase text-ink/70 block mb-2">
+                Email Address
+              </span>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="input-field"
+                className="input-field w-full p-2 border border-stone"
+                required
               />
             </label>
 
             <label className="block">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs tracking-widest2 uppercase text-ink/70">Password</span>
-                <button type="button" className="text-xs underline">Forgot?</button>
+                <span className="text-xs tracking-widest uppercase text-ink/70">
+                  Password
+                </span>
+                <button type="button" className="text-xs underline">
+                  Forgot?
+                </button>
               </div>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="input-field"
+                className="input-field w-full p-2 border border-stone"
+                required
               />
             </label>
 
-            {error && <p className="text-sm text-terracotta">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full disabled:opacity-60 py-3 bg-black text-white"
+            >
               {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
@@ -85,18 +118,26 @@ export default function Login() {
         </div>
 
         <div className="relative hidden md:block">
-          <img src="/images/pic22.jpeg" alt="Lavishloom boutique interior" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-indigo/70" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-cream px-10">
-            <h2 className="mb-4">New to the family?</h2>
-            <p className="text-cream/85 mb-8">
+          <img
+            src="/images/pic22.jpeg"
+            alt="Lavishloom boutique interior"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-indigo-900/40" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-10">
+            <h2 className="mb-4 text-xl font-semibold">New to the family?</h2>
+            <p className="text-white/85 mb-8 text-sm">
               Join Lavishloom Kidz for curated collections, exclusive early access, and a
               personalized shopping experience tailored for your little ones.
             </p>
-            <button className="border border-cream px-8 py-3 text-sm tracking-widest2 uppercase hover:bg-cream hover:text-ink transition-colors">
+            {/* FIXED: Wrapped button with Link */}
+            <Link
+              to="/register"
+              className="border border-white px-8 py-3 text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-colors inline-block"
+            >
               Create Account →
-            </button>
-            <p className="text-xs text-cream/60 mt-6">Handcrafted for Childhood since 2012</p>
+            </Link>
+            <p className="text-xs text-white/60 mt-6">Handcrafted for Childhood since 2012</p>
           </div>
         </div>
       </div>
