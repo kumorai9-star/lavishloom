@@ -1,7 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 
 export default function Login() {
   const { login } = useStore();
@@ -27,8 +28,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1. Send credentials to Node.js / Express Backend
-      const res = await fetch("http://localhost:5000/api/users/login", {
+      // FIXED HERE: Replaced localhost:5000 with ${API_BASE_URL}
+      const res = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,10 +43,7 @@ export default function Login() {
         throw new Error(data.message || "Invalid email or password");
       }
 
-      // 2. Pass email, password, and token to StoreContext
       await login(data.email || email, password, data.token);
-
-      // 3. Navigate to checkout or profile
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message || "We couldn't sign you in. Check your details and try again.");
@@ -131,7 +129,6 @@ export default function Login() {
               Join Lavishloom Kidz for curated collections, exclusive early access, and a
               personalized shopping experience tailored for your little ones.
             </p>
-            {/* FIXED: Wrapped button with Link */}
             <Link
               to="/register"
               className="border border-white px-8 py-3 text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-colors inline-block"

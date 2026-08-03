@@ -1,8 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 import { formatPrice } from "../data/products";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 
 const statusColor = {
   PROCESSING: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -52,7 +53,8 @@ export default function Profile() {
       const authHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 
       try {
-        const res = await fetch("http://localhost:5000/api/orders/myorders", {
+        // FIXED HERE: Replaced localhost:5000 with ${API_BASE_URL}
+        const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
           headers: {
             Authorization: authHeader,
           },

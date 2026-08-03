@@ -1,7 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 
 export default function Register() {
   const { login } = useStore();
@@ -25,7 +26,8 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/register", {
+      // FIXED HERE: Replaced localhost:5000 with ${API_BASE_URL}
+      const res = await fetch(`${API_BASE_URL}/api/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,7 +41,6 @@ export default function Register() {
         throw new Error(data.message || "Registration failed");
       }
 
-      // Automatically log user in upon registration
       if (data.token) {
         await login(data.email || email, password, data.token);
       }
