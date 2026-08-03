@@ -3,6 +3,9 @@ import { products as seedProducts, getVariantStock } from "../data/products";
 
 const StoreContext = createContext(null);
 
+// Dynamic API Base URL using Vite env variable with Render as a fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
+
 const ADMIN_PRODUCTS_KEY = "lavishloom_admin_products_v1";
 const USERS_STORAGE_KEY = "lavishloom_users_v1";
 
@@ -97,7 +100,8 @@ export function StoreProvider({ children }) {
 
     setLoadingOrders(true);
     try {
-      const res = await fetch("http://localhost:5000/api/orders/myorders", {
+      // Updated to use dynamic API_BASE_URL variable:
+      const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
         headers: {
           Authorization: authHeader,
           "Content-Type": "application/json",
