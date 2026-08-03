@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 import { formatPrice } from "../data/products";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
+
 export default function Checkout() {
   const { cart, cartTotal, clearCart, user, profile } = useStore();
   const navigate = useNavigate();
@@ -34,14 +36,12 @@ export default function Checkout() {
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  // Step 1: Universal Token Inspector (checks StoreContext & LocalStorage)
+  // Universal Token Inspector
   const getAuthToken = () => {
-    // 1. Check React state (StoreContext)
     if (user?.token) {
       return user.token.startsWith("Bearer ") ? user.token : `Bearer ${user.token}`;
     }
 
-    // 2. Check common LocalStorage keys
     const possibleKeys = ["userInfo", "user", "token", "authToken"];
     for (const key of possibleKeys) {
       const raw = localStorage.getItem(key);
@@ -106,7 +106,8 @@ export default function Checkout() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders", {
+      // FIXED HERE: Replaced hardcoded localhost URL with API_BASE_URL
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
