@@ -30,8 +30,7 @@ export function StoreProvider({ children }) {
   }, []);
 
   // Polls for new products every 30s and fires a browser notification if the
-  // count went up and the visitor has granted notification permission — this
-  // lets anyone browsing the site (not just the admin) get notified live.
+  // count went up and the visitor has granted notification permission.
   useEffect(() => {
     const POLL_MS = 30000;
     let lastCount = products.length;
@@ -244,6 +243,7 @@ export function StoreProvider({ children }) {
             price: i.price,
           })),
           total: o.totalPrice,
+          paymentMethod: o.paymentMethod,
         }))
       );
     } catch (err) {
@@ -271,6 +271,7 @@ export function StoreProvider({ children }) {
       shippingPrice: orderData.shippingCost,
       taxPrice: 0,
       totalPrice: orderData.total,
+      paymentMethod: orderData.paymentMethod || "Card",
     };
 
     const res = await fetch("/api/orders", {
