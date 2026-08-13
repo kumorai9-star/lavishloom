@@ -41,7 +41,7 @@ export default function Checkout() {
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   const qrImages = {
-    esewa: "/images/esewa-qr.png",
+    esewa: "/images/esewa-qr.jpg",
     mobile_banking: "/images/mobile-banking-qr.png",
   };
 
