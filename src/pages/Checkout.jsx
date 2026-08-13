@@ -19,9 +19,9 @@ export default function Checkout() {
     postalCode: "",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState(null); // "esewa" | "mobile_banking"
-  const [paymentFile, setPaymentFile] = useState(null); // Actual File object for upload
-  const [paymentPreview, setPaymentPreview] = useState(null); // Local object URL for preview
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [paymentFile, setPaymentFile] = useState(null);
+  const [paymentPreview, setPaymentPreview] = useState(null);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,7 +51,6 @@ export default function Checkout() {
     setPaymentPreview(null);
   };
 
-  // Capture file for upload and generate local preview URL
   const handleProofUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -75,14 +74,21 @@ export default function Checkout() {
 
     setPlacing(true);
     try {
-      // 1. Upload payment screenshot file to server via Multer
+      const token = localStorage.getItem("lavishloom_token");
+
+      // 1. Upload payment screenshot file
       const formData = new FormData();
       formData.append("screenshot", paymentFile);
-      formData.append("userId", user?._id || user?.id || "guest");
+      if (user?._id || user?.id) {
+        formData.append("userId", user._id || user.id);
+      }
       formData.append("amount", total);
 
       const uploadRes = await axios.post(`${API_BASE_URL}/api/payments/upload-proof`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
 
       const uploadedScreenshotUrl = uploadRes.data.payment?.screenshotUrl || uploadRes.data.screenshotUrl;
@@ -103,7 +109,7 @@ export default function Checkout() {
         shippingCost: shipping,
         total,
         paymentMethod: paymentMethod === "esewa" ? "eSewa" : "Mobile Banking",
-        paymentProof: uploadedScreenshotUrl, // Saved as URL string in MongoDB
+        paymentProof: uploadedScreenshotUrl,
       });
 
       clearCart();
