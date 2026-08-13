@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const StoreContext = createContext(null);
 const TOKEN_KEY = "lavishloom_token";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
+
+const rawApiUrl = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
+const API_BASE_URL = rawApiUrl.replace(/['"]+/g, "").replace(/\/+$/, "").trim();
 
 function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
