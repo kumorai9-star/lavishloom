@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const StoreContext = createContext(null);
 const TOKEN_KEY = "lavishloom_token";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
 
 function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -15,7 +16,7 @@ export function StoreProvider({ children }) {
   const fetchProducts = async () => {
     setProductsLoading(true);
     try {
-      const res = await fetch("/api/products");
+      const res = await fetch(`${API_BASE_URL}/api/products`);
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -29,15 +30,14 @@ export function StoreProvider({ children }) {
     fetchProducts();
   }, []);
 
-  // Polls for new products every 30s and fires a browser notification if the
-  // count went up and the visitor has granted notification permission.
+  // Polls for new products every 30s
   useEffect(() => {
     const POLL_MS = 30000;
     let lastCount = products.length;
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/products");
+        const res = await fetch(`${API_BASE_URL}/api/products`);
         const data = await res.json();
 
         if (data.length > lastCount) {
@@ -100,7 +100,7 @@ export function StoreProvider({ children }) {
   };
 
   const login = async (email, password) => {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -115,7 +115,7 @@ export function StoreProvider({ children }) {
   };
 
   const register = async (name, email, password) => {
-    const res = await fetch("/api/auth/register", {
+    const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
@@ -163,7 +163,7 @@ export function StoreProvider({ children }) {
   }, [user, wishlist]);
 
   const updateProfile = async (updates) => {
-    const res = await fetch("/api/users/profile", {
+    const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
       body: JSON.stringify({
@@ -189,7 +189,7 @@ export function StoreProvider({ children }) {
       wasWishlisted ? prev.filter((id) => id !== productId) : [...prev, productId]
     );
     try {
-      await fetch("/api/users/wishlist", {
+      await fetch(`${API_BASE_URL}/api/users/wishlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders(token) },
         body: JSON.stringify({ productId }),
@@ -202,7 +202,7 @@ export function StoreProvider({ children }) {
   // ---- Newsletter ----
   const subscribe = async (email) => {
     try {
-      const res = await fetch("/api/subscribers", {
+      const res = await fetch(`${API_BASE_URL}/api/subscribers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -225,7 +225,7 @@ export function StoreProvider({ children }) {
   const fetchMyOrders = async () => {
     if (!token) return;
     try {
-      const res = await fetch("/api/orders/myorders", {
+      const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
         headers: authHeaders(token),
       });
       if (!res.ok) return;
@@ -276,7 +276,7 @@ export function StoreProvider({ children }) {
       paymentProof: orderData.paymentProof || "",
     };
 
-    const res = await fetch("/api/orders", {
+    const res = await fetch(`${API_BASE_URL}/api/orders`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
       body: JSON.stringify(payload),
@@ -339,7 +339,7 @@ export function StoreProvider({ children }) {
 
   // ---- Admin: product management ----
   const addProduct = async (newProduct) => {
-    const res = await fetch("/api/products", {
+    const res = await fetch(`${API_BASE_URL}/api/products`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
       body: JSON.stringify(newProduct),
@@ -354,7 +354,7 @@ export function StoreProvider({ children }) {
   };
 
   const updateProduct = async (productId, updates) => {
-    const res = await fetch(`/api/products/${productId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
       body: JSON.stringify(updates),
@@ -365,7 +365,7 @@ export function StoreProvider({ children }) {
   };
 
   const deleteProduct = async (productId) => {
-    const res = await fetch(`/api/products/${productId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
       method: "DELETE",
       headers: authHeaders(token),
     });

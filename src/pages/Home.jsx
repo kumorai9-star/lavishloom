@@ -109,9 +109,9 @@ function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = subscribe(email);
+    const result = await subscribe(email);
     setMessage(result.message);
     if (result.success) setEmail("");
     setTimeout(() => setMessage(null), 4000);
