@@ -244,6 +244,7 @@ export function StoreProvider({ children }) {
           })),
           total: o.totalPrice,
           paymentMethod: o.paymentMethod,
+          paymentProof: o.paymentProof,
         }))
       );
     } catch (err) {
@@ -272,6 +273,7 @@ export function StoreProvider({ children }) {
       taxPrice: 0,
       totalPrice: orderData.total,
       paymentMethod: orderData.paymentMethod || "Card",
+      paymentProof: orderData.paymentProof || "",
     };
 
     const res = await fetch("/api/orders", {

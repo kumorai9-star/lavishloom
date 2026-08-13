@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 import { formatPrice } from "../data/products";
+import axios from "axios";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart, addOrder, user, profile } = useStore();
@@ -15,7 +18,10 @@ export default function Checkout() {
     city: "",
     postalCode: "",
   });
+
   const [paymentMethod, setPaymentMethod] = useState(null); // "esewa" | "mobile_banking"
+  const [paymentFile, setPaymentFile] = useState(null); // Actual File object for upload
+  const [paymentPreview, setPaymentPreview] = useState(null); // Local object URL for preview
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
 
@@ -34,6 +40,26 @@ export default function Checkout() {
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
+  const qrImages = {
+    esewa: "/images/esewa-qr.png",
+    mobile_banking: "/images/mobile-banking-qr.png",
+  };
+
+  const handleSelectPayment = (method) => {
+    setPaymentMethod(method);
+    setPaymentFile(null);
+    setPaymentPreview(null);
+  };
+
+  // Capture file for upload and generate local preview URL
+  const handleProofUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPaymentFile(file);
+    setPaymentPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -42,9 +68,26 @@ export default function Checkout() {
       setError("Please select a payment method to continue.");
       return;
     }
+    if (!paymentFile) {
+      setError("Please upload a screenshot of your payment before placing the order.");
+      return;
+    }
 
     setPlacing(true);
     try {
+      // 1. Upload payment screenshot file to server via Multer
+      const formData = new FormData();
+      formData.append("screenshot", paymentFile);
+      formData.append("userId", user?._id || user?.id || "guest");
+      formData.append("amount", total);
+
+      const uploadRes = await axios.post(`${API_BASE_URL}/api/payments/upload-proof`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const uploadedScreenshotUrl = uploadRes.data.payment?.screenshotUrl || uploadRes.data.screenshotUrl;
+
+      // 2. Pass server-generated image URL into addOrder
       await addOrder({
         items: cart.map((item) => ({
           name: item.name,
@@ -60,11 +103,14 @@ export default function Checkout() {
         shippingCost: shipping,
         total,
         paymentMethod: paymentMethod === "esewa" ? "eSewa" : "Mobile Banking",
+        paymentProof: uploadedScreenshotUrl, // Saved as URL string in MongoDB
       });
+
       clearCart();
       navigate("/profile");
     } catch (err) {
-      setError(err.message || "Something went wrong placing your order.");
+      console.error(err);
+      setError(err.response?.data?.message || err.message || "Something went wrong placing your order.");
     } finally {
       setPlacing(false);
     }
@@ -91,30 +137,69 @@ export default function Checkout() {
           <h2 className="mb-4 mt-10">Payment Method</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <PaymentOption
-              id="esewa"
               label="eSewa"
               description="Pay securely using your eSewa wallet."
               selected={paymentMethod === "esewa"}
-              onSelect={() => setPaymentMethod("esewa")}
+              onSelect={() => handleSelectPayment("esewa")}
             >
               <EsewaLogo />
             </PaymentOption>
 
             <PaymentOption
-              id="mobile_banking"
               label="Mobile Banking"
               description="Pay directly via your bank's mobile app."
               selected={paymentMethod === "mobile_banking"}
-              onSelect={() => setPaymentMethod("mobile_banking")}
+              onSelect={() => handleSelectPayment("mobile_banking")}
             >
               <MobileBankingIcon />
             </PaymentOption>
           </div>
 
+          {paymentMethod && (
+            <div className="mt-6 border border-stone/60 p-6 flex flex-col items-center text-center bg-white">
+              <p className="text-sm text-ink/70 mb-4">
+                Scan the QR code below with your {paymentMethod === "esewa" ? "eSewa app" : "mobile banking app"} to complete payment for {formatPrice(total)}.
+              </p>
+              <img
+                src={qrImages[paymentMethod]}
+                alt={paymentMethod === "esewa" ? "eSewa QR code" : "Mobile Banking QR code"}
+                className="w-56 h-56 object-contain border border-stone/40 p-2"
+              />
+
+              <div className="w-full mt-6 pt-6 border-t border-stone/40">
+                <p className="text-sm text-ink/80 mb-1 font-medium">Payment complete?</p>
+                <p className="text-xs text-ink/60 mb-4">
+                  Take a screenshot of your successful payment confirmation and upload it below as proof.
+                </p>
+
+                <label className="btn-secondary text-xs inline-block cursor-pointer">
+                  {paymentPreview ? "Change Screenshot" : "Upload Payment Screenshot"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProofUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {paymentPreview && (
+                  <div className="mt-4 flex flex-col items-center">
+                    <img
+                      src={paymentPreview}
+                      alt="Payment proof preview"
+                      className="w-40 h-40 object-cover border border-stone/40"
+                    />
+                    <p className="text-xs text-terracotta mt-2">✓ Screenshot attached</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {error && <p className="text-sm text-terracotta mt-4">{error}</p>}
 
           <button type="submit" disabled={placing} className="btn-primary w-full mt-8 disabled:opacity-60">
-            {placing ? "Placing Order..." : "Place Order 🔒"}
+            {placing ? "Uploading Proof & Placing Order..." : "Place Order 🔒"}
           </button>
         </form>
 
@@ -146,9 +231,6 @@ export default function Checkout() {
             <span>Total</span>
             <span className="font-medium">{formatPrice(total)}</span>
           </div>
-          <p className="text-xs text-ink/50 mt-4">
-            🛡 Your information is kept secure and is never shared with third parties.
-          </p>
         </aside>
       </div>
     </div>
@@ -164,7 +246,7 @@ function Field({ label, ...props }) {
   );
 }
 
-function PaymentOption({ id, label, description, selected, onSelect, children }) {
+function PaymentOption({ label, description, selected, onSelect, children }) {
   return (
     <button
       type="button"
