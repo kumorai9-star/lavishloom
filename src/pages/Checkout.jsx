@@ -74,8 +74,6 @@ export default function Checkout() {
 
     setPlacing(true);
     try {
-      const token = localStorage.getItem("lavishloom_token");
-
       // 1. Upload payment screenshot file
       const formData = new FormData();
       formData.append("screenshot", paymentFile);
@@ -85,29 +83,58 @@ export default function Checkout() {
       formData.append("amount", total);
 
       const uploadRes = await axios.post(`${API_BASE_URL}/api/payments/upload-proof`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       const uploadedScreenshotUrl = uploadRes.data.payment?.screenshotUrl || uploadRes.data.screenshotUrl;
 
-      // 2. Pass server-generated image URL into addOrder
+      // 2. Map cart items safely with fallbacks so required Mongoose fields (name, image) are never empty
+      const formattedItems = cart.map((item) => {
+        const itemName =
+          item.name ||
+          item.title ||
+          item.product?.name ||
+          "Kids Apparel";
+
+        const itemImage =
+          item.image ||
+          (Array.isArray(item.images) && item.images[0]) ||
+          item.product?.image ||
+          item.imageUrl ||
+          "/images/placeholder.jpg";
+
+        const productId =
+          item.productId ||
+          item._id ||
+          item.id ||
+          item.product?._id ||
+          "000000000000000000000000";
+
+        return {
+          name: itemName,
+          size: item.size || "Standard",
+          color: item.color || "Default",
+          qty: Number(item.qty || item.quantity || 1),
+          quantity: Number(item.qty || item.quantity || 1),
+          price: Number(item.price || 0),
+          image: itemImage,
+          product: productId,
+          productId: productId,
+        };
+      });
+
+      // 3. Pass formatted items & address to addOrder
       await addOrder({
-        items: cart.map((item) => ({
-          name: item.name,
-          size: item.size,
-          color: item.color,
-          qty: item.qty,
-          price: item.price,
-          image: item.image,
-          productId: item.productId,
-        })),
+        orderItems: formattedItems,
+        items: formattedItems,
+        shippingAddress: { ...form },
         shipping: { ...form },
         subtotal: cartTotal,
+        itemsPrice: cartTotal,
         shippingCost: shipping,
+        shippingPrice: shipping,
         total,
+        totalPrice: total,
         paymentMethod: paymentMethod === "esewa" ? "eSewa" : "Mobile Banking",
         paymentProof: uploadedScreenshotUrl,
       });
@@ -213,13 +240,13 @@ export default function Checkout() {
           <h2 className="mb-6">Order Summary</h2>
           <div className="space-y-4 mb-6">
             {cart.map((item) => (
-              <div key={item.key} className="flex gap-3">
-                <img src={item.image} alt={item.name} className="w-14 h-14 object-cover" />
+              <div key={item.key || item._id || item.id} className="flex gap-3">
+                <img src={item.image || item.images?.[0]} alt={item.name || item.title} className="w-14 h-14 object-cover" />
                 <div className="flex-1 text-sm">
-                  <p className="font-medium">{item.name}</p>
+                  <p className="font-medium">{item.name || item.title}</p>
                   <p className="text-ink/60 text-xs">Size: {item.size}</p>
                 </div>
-                <p className="text-sm">{formatPrice(item.price * item.qty)}</p>
+                <p className="text-sm">{formatPrice(item.price * (item.qty || item.quantity || 1))}</p>
               </div>
             ))}
           </div>

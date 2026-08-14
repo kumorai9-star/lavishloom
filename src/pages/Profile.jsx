@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
 import { formatPrice } from "../data/products";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://lavishloom-backend.onrender.com";
-
 const statusColor = {
   PROCESSING: "bg-yellow-100 text-yellow-800 border-yellow-200",
   PENDING: "bg-amber-100 text-amber-800 border-amber-200",
@@ -15,7 +13,7 @@ const statusColor = {
 };
 
 export default function Profile() {
-  const { user, profile, updateProfile, wishlist, products, logout } = useStore();
+  const { user, profile, updateProfile, wishlist, products, orders, fetchMyOrders, logout, token } = useStore();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -24,55 +22,18 @@ export default function Profile() {
     address: profile?.address || "",
   });
   const [saved, setSaved] = useState(false);
-
-  // Dynamic order state & loading handler
-  const [userOrders, setUserOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
-  // Fetch fresh orders directly from MongoDB whenever page loads
+  // Refresh orders on page load
   useEffect(() => {
-    const fetchMyOrders = async () => {
-      // Get token from context or localStorage
-      const rawToken = user?.token || localStorage.getItem("token") || localStorage.getItem("userInfo");
-      let token = null;
-
-      if (rawToken) {
-        try {
-          const parsed = JSON.parse(rawToken);
-          token = parsed?.token || parsed;
-        } catch {
-          token = rawToken;
-        }
+    const loadData = async () => {
+      if (token) {
+        await fetchMyOrders();
       }
-
-      if (!token) {
-        setLoadingOrders(false);
-        return;
-      }
-
-      const authHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
-
-      try {
-        // FIXED HERE: Replaced localhost:5000 with ${API_BASE_URL}
-        const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
-          headers: {
-            Authorization: authHeader,
-          },
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          setUserOrders(Array.isArray(data) ? data : []);
-        }
-      } catch (err) {
-        console.error("Failed to load user orders:", err);
-      } finally {
-        setLoadingOrders(false);
-      }
+      setLoadingOrders(false);
     };
-
-    fetchMyOrders();
-  }, [user]);
+    loadData();
+  }, [token]);
 
   useEffect(() => {
     setForm({
@@ -89,9 +50,9 @@ export default function Profile() {
     navigate("/");
   };
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
-    updateProfile(form);
+    await updateProfile(form);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -209,8 +170,8 @@ export default function Profile() {
                 {wishlistedProducts.map((p) => (
                   <Link key={p._id} to={`/product/${p._id}`} className="group block">
                     <img
-                      src={p.images?.[0]?.url}
-                      alt={p.images?.[0]?.alt || p.name}
+                      src={p.images?.[0]?.url || p.images?.[0]}
+                      alt={p.name}
                       className="aspect-square object-cover mb-2 rounded-sm group-hover:opacity-90 transition-opacity"
                     />
                     <p className="text-xs font-medium truncate">{p.name}</p>
@@ -228,7 +189,7 @@ export default function Profile() {
 
           {loadingOrders ? (
             <p className="text-sm text-ink/50 py-4">Loading your order history...</p>
-          ) : userOrders.length === 0 ? (
+          ) : orders.length === 0 ? (
             <div className="text-center py-8 border border-dashed border-stone/60 rounded">
               <p className="text-sm text-ink/60 mb-2">You haven't placed any orders yet.</p>
               <Link to="/shop" className="text-xs underline font-medium">
@@ -237,21 +198,16 @@ export default function Profile() {
             </div>
           ) : (
             <div className="space-y-4">
-              {userOrders.map((o) => {
-                const items = o.orderItems || o.items || [];
-                const orderId = o._id
-                  ? `#LK-${o._id.substring(o._id.length - 8).toUpperCase()}`
-                  : o.id;
-                const orderDate = o.createdAt || o.date;
-                const orderTotal = o.totalPrice ?? o.total ?? 0;
+              {orders.map((o) => {
+                const items = o.items || [];
                 const currentStatus = (o.status || "PROCESSING").toUpperCase();
 
                 return (
                   <div key={o._id || o.id} className="border border-stone/50 p-4 rounded-sm space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-stone/30">
                       <div>
-                        <p className="font-semibold text-sm">{orderId}</p>
-                        <p className="text-xs text-ink/50">{formatDate(orderDate)}</p>
+                        <p className="font-semibold text-sm">{o.id}</p>
+                        <p className="text-xs text-ink/50">{formatDate(o.date)}</p>
                       </div>
                       <span
                         className={`text-[11px] font-medium px-2.5 py-0.5 border rounded-full ${
@@ -269,14 +225,12 @@ export default function Profile() {
                             {item.image && (
                               <img
                                 src={item.image}
-                                alt={item.title || item.name}
+                                alt={item.name}
                                 className="w-10 h-10 object-cover rounded border border-stone/30 flex-shrink-0"
                               />
                             )}
                             <div className="truncate">
-                              <p className="font-medium text-xs truncate">
-                                {item.title || item.name}
-                              </p>
+                              <p className="font-medium text-xs truncate">{item.name}</p>
                               <p className="text-[11px] text-ink/60">
                                 {item.size && `Size: ${item.size}`}{" "}
                                 {item.color && `| Color: ${item.color}`} | Qty: {item.qty}
@@ -292,7 +246,7 @@ export default function Profile() {
 
                     <div className="flex justify-between items-center text-sm border-t border-stone/40 pt-2.5 mt-2">
                       <span className="text-ink/60 text-xs">Total Amount</span>
-                      <span className="font-semibold text-sm">{formatPrice(orderTotal)}</span>
+                      <span className="font-semibold text-sm">{formatPrice(o.total)}</span>
                     </div>
                   </div>
                 );

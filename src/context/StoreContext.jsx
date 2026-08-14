@@ -11,7 +11,7 @@ function authHeaders(token) {
 }
 
 export function StoreProvider({ children }) {
-  // ---- Products (fetched from backend) ----
+  // ---- Products ----
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
@@ -32,7 +32,6 @@ export function StoreProvider({ children }) {
     fetchProducts();
   }, []);
 
-  // Polls for new products every 30s
   useEffect(() => {
     const POLL_MS = 30000;
     let lastCount = products.length;
@@ -58,15 +57,14 @@ export function StoreProvider({ children }) {
         }
         lastCount = data.length;
       } catch {
-        // ignore polling errors silently
+        // ignore polling errors
       }
     }, POLL_MS);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products.length]);
 
-  // ---- Cart (local — carts are per-device/session) ----
+  // ---- Cart ----
   const [cart, setCart] = useState(() => {
     try {
       const saved = sessionStorage.getItem("lavishloom_cart");
@@ -153,7 +151,6 @@ export function StoreProvider({ children }) {
       }
     }
     fetchMyOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -232,49 +229,73 @@ export function StoreProvider({ children }) {
       });
       if (!res.ok) return;
       const data = await res.json();
-      setOrders(
-        data.map((o) => ({
-          id: `#${o._id.slice(-6).toUpperCase()}`,
-          date: o.createdAt,
-          status: o.status ? o.status.charAt(0) + o.status.slice(1).toLowerCase() : "Processing",
-          items: o.orderItems.map((i) => ({
-            name: i.title,
-            size: i.size,
-            color: i.color,
-            qty: i.qty,
-            price: i.price,
-          })),
-          total: o.totalPrice,
-          paymentMethod: o.paymentMethod,
-          paymentProof: o.paymentProof,
-        }))
-      );
+
+      if (Array.isArray(data)) {
+        setOrders(
+          data.map((o) => ({
+            _id: o._id,
+            id: `#LK-${o._id.slice(-6).toUpperCase()}`,
+            date: o.createdAt,
+            status: o.status ? o.status.toUpperCase() : "PROCESSING",
+            items: (o.orderItems || o.items || []).map((i) => ({
+              name: i.name || i.title || "Kids Item",
+              image: i.image || "/images/placeholder.jpg",
+              size: i.size,
+              color: i.color,
+              qty: i.qty || 1,
+              price: i.price || 0,
+            })),
+            total: o.totalPrice || o.total || 0,
+            paymentMethod: o.paymentMethod,
+            paymentProof: o.paymentProof,
+          }))
+        );
+      }
     } catch (err) {
       console.error("Failed to load orders:", err);
     }
   };
 
   const addOrder = async (orderData) => {
+    const itemsSource = orderData.orderItems || orderData.items || cart;
+
+    const formattedOrderItems = itemsSource.map((item) => {
+      const itemName = item.name || item.title || "Kids Apparel Item";
+      const itemImage =
+        item.image ||
+        (Array.isArray(item.images) && item.images[0]?.url) ||
+        (Array.isArray(item.images) && item.images[0]) ||
+        item.imageUrl ||
+        "/images/placeholder.jpg";
+
+      return {
+        name: itemName,
+        title: itemName,
+        image: itemImage,
+        qty: Number(item.qty || item.quantity || 1),
+        price: Number(item.price || 0),
+        size: item.size || "Standard",
+        color: item.color || "Default",
+        product: item.productId || item.product || item._id || item.id,
+      };
+    });
+
+    const shippingInfo = orderData.shippingAddress || orderData.shipping || {};
+
     const payload = {
-      orderItems: orderData.items.map((item) => ({
-        title: item.name,
-        qty: item.qty,
-        price: item.price,
-        size: item.size,
-        color: item.color,
-        product: item.productId,
-      })),
+      orderItems: formattedOrderItems,
       shippingAddress: {
-        fullName: orderData.shipping.fullName,
-        address: orderData.shipping.address,
-        city: orderData.shipping.city,
-        postalCode: orderData.shipping.postalCode,
+        fullName: shippingInfo.fullName || "",
+        address: shippingInfo.address || "",
+        city: shippingInfo.city || "",
+        postalCode: shippingInfo.postalCode || "",
       },
-      subtotal: orderData.subtotal,
-      shippingPrice: orderData.shippingCost,
+      subtotal: Number(orderData.subtotal || orderData.itemsPrice || 0),
+      itemsPrice: Number(orderData.subtotal || orderData.itemsPrice || 0),
+      shippingPrice: Number(orderData.shippingCost || orderData.shippingPrice || 0),
       taxPrice: 0,
-      totalPrice: orderData.total,
-      paymentMethod: orderData.paymentMethod || "Card",
+      totalPrice: Number(orderData.total || orderData.totalPrice || 0),
+      paymentMethod: orderData.paymentMethod || "eSewa",
       paymentProof: orderData.paymentProof || "",
     };
 
@@ -283,10 +304,12 @@ export function StoreProvider({ children }) {
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
       body: JSON.stringify(payload),
     });
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "Failed to place order");
     }
+
     const saved = await res.json();
     await fetchMyOrders();
     return saved;
@@ -321,7 +344,7 @@ export function StoreProvider({ children }) {
           price: product.price,
           size,
           color,
-          image: product.images?.[0]?.url,
+          image: product.images?.[0]?.url || product.images?.[0] || product.image,
           qty: actualQty,
         },
       ];
@@ -339,7 +362,7 @@ export function StoreProvider({ children }) {
 
   const clearCart = () => setCart([]);
 
-  // ---- Admin: product management ----
+  // ---- Admin ----
   const addProduct = async (newProduct) => {
     const res = await fetch(`${API_BASE_URL}/api/products`, {
       method: "POST",
@@ -406,6 +429,7 @@ export function StoreProvider({ children }) {
     },
     updateProfile,
     orders,
+    fetchMyOrders,
     addOrder,
     addProduct,
     updateProduct,
